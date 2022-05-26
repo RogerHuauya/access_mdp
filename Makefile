@@ -26,7 +26,7 @@ $(TARGET): $(OBJ) | $(BUILD_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo Creating object file $@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ -I $(INC)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INC)
 
 $(BUILD_DIR) $(OBJ_DIR):
 	@echo Creating build folder
