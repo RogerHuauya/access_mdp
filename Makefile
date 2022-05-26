@@ -15,6 +15,7 @@ CFLAGS   := -Wall
 LDFLAGS  := 
 LDLIBS   := 
 INC := -I include
+PCFG = -lzbar `pkg-config --cflags --libs opencv`
 
 .PHONY: all clean
 
