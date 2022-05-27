@@ -15,7 +15,7 @@ CFLAGS   := -Wall
 LDFLAGS  := 
 LDLIBS   := 
 INC := -I include
-PCFG = -lzbar `pkg-config --cflags --libs opencv`
+PCFG =  `pkg-config --cflags --libs opencv`
 
 .PHONY: all clean
 
@@ -23,7 +23,7 @@ all: $(TARGET)
 
 $(TARGET): $(OBJ) | $(BUILD_DIR)
 	@echo Linking objects
-	$(CC) $(TEST_DIR)/$(TARGET).cpp $(CPPFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $(BUILD_DIR)/$@ $(INC)
+	$(CC) $(TEST_DIR)/$(TARGET).cpp $(CPPFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $(BUILD_DIR)/$@ $(PCFG) $(INC)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo Creating object file $@
