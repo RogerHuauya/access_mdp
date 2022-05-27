@@ -15,7 +15,7 @@ CFLAGS   := -Wall
 LDFLAGS  := 
 LDLIBS   := 
 INC := -I include
-PCFG =  `pkg-config --cflags --libs opencv`
+PCFG =  -lzbar -lwiringPi -lpthread `pkg-config --cflags --libs opencv`
 
 .PHONY: all clean
 
@@ -27,7 +27,7 @@ $(TARGET): $(OBJ) | $(BUILD_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo Creating object file $@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INC)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(PCFG) $(INC)
 
 $(BUILD_DIR) $(OBJ_DIR):
 	@echo Creating build folder
