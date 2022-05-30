@@ -1,15 +1,19 @@
 #include <wiringPi.h>
 #include "gpio.hpp"
-#define BUZZER 14
-#define PIR_SENSOR 15
-#define GREEN_LED 16
-#define RED_LED 17
-#define DOOR_EN 18
+#define BUZZER 24
+#define PIR_SENSOR 20
+#define GREEN_LED 17
+#define YELLOW_LED 27
+#define RED_LED 22
+#define DOOR_EN 25
 
 using namespace std;
 bool pir_flag;
 void beepBuzzer(){
 	cout<< "Beeping buzzer"<<endl;
+	digitalWrite(BUZZER, HIGH);
+	delay(5000);
+	digitalWrite(BUZZER, LOW);
 }
 void gpioSetup(){
 	wiringPiSetup();
@@ -29,5 +33,6 @@ void openDoor(){
 	digitalWrite(DOOR_EN, LOW);
 }
 void *pirWatcher(void * thread_id){
-	pir_flag = bool(digitalRead(PIR_SENSOR));
+	if(digitalRead(PIR_SENSOR) == 1) pir_flag = true;
+	delay(200);
 }

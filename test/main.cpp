@@ -11,11 +11,10 @@
 #include "qr.hpp"
 #include "gpio.hpp"
 
-#DEFINE TIMEOUT 5
+#define TIMEOUT 5.0
 
 using namespace cv;
 using namespace std;
-bool pir_flag;
 int main() {
 
     gpioSetup();
@@ -24,7 +23,12 @@ int main() {
     id_thread_pir  = pthread_create(&threads[0], NULL, pirWatcher, (void *)0);
 
     while(true){
+        if(pir_flag){
+            bool detected = qrDetector(TIMEOUT);
+            if(detected) cout<<"DETECTED"<<endl;
+            pir_flag = false;
 
+        }
     }
 
 }
