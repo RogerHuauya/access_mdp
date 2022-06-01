@@ -1,13 +1,20 @@
-#include <unistd.h>
 #include <sys/types.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+
 #include "gpio.hpp"
 
-#define BUZZER 24
-#define PIR_SENSOR 20
-#define GREEN_LED 17
-#define YELLOW_LED 27
-#define RED_LED 22
-#define DOOR_EN 25
+#define BUZZER "24"
+#define PIR_SENSOR "20"
+#define GREEN_LED "17"
+#define YELLOW_LED "27"
+#define RED_LED "22"
+#define DOOR_EN "25"
 
 #define INPUT 0
 #define OUTPUT 1
@@ -20,93 +27,201 @@ bool pir_flag;
 void delay(int milliseconds){
 	usleep(milliseconds*1000);
 }
-void pinMode(int pin, int mode){
-	string pin_string = to_string(pin);
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/export");
-        exit(1);
-    }
 
-    if (write(fd, pin_string, pin_string.size()) != pin_string.size()) {
-        perror("Error writing to /sys/class/gpio/export");
-        exit(1);
-    }
+//Copyright (c) 2019, Alex Mous
+//Licensed under the Creative Commons Attribution-ShareAlike 4.0 International (CC-BY-4.0)
 
-    close(fd);
+//C++ library to control the GPIO pins on the Raspberry Pi.
+//Overview of functions:
+//	setupPin	--	creates/destroys pin (1 to create and init, 0 to destroy)
+//	setDirection	--	set pin direction (input/output)
+//	writeValue	--	set the output voltage of the GPIO pin (1 for high, 0 for low)
+//	readValue	--	read the current value of the GPIO pin (sets input pointer *output to 1 for high or 0 for low)
 
-    fd = open("/sys/class/gpio/gpio"+ pin_string +"/direction", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio"+ pin_string +"/direction");
-        exit(1);
-    }
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-	if (mode == OUTPUT){
-    	if (write(fd, "out", 3) != 3) {
-			perror("Error writing to /sys/class/gpio"+ pin_string +"/direction");
-			exit(1);
-    	}
+GPIO::GPIO(const char *pin) {
+//Run class setup
+	pin_num = pin;
+	_direction = -1; //Direction not set
+	_level = -1; //Current pin level not set
+}
+
+int GPIO::setupPin(int create) { //Set create to true for creation or false to destroy pin
+//Export pin (BCM number pin_num) for use as IO, NOTE: pin_num is char type
+	const char *path;
+
+	switch (create) { //Set path
+		case 1:
+			path = "/sys/class/gpio/export"; //export path
+			break;
+		case 0:
+			path = "/sys/class/gpio/unexport"; //unexport path
+			break;
+		default:
+			std::cout << "ERR (GPIO.h:setupPin): Incorrect value for create variable (must be either 0 or 1)\n";
+			break;
 	}
 
-	else if (mode == INPUT){
-    	if (write(fd, "in", 2) != 2) {
-			perror("Error writing to /sys/class/gpio"+ pin_string +"/direction");
-			exit(1);
-    	}
+	std::ofstream file(path); //Open file
+	if (file.is_open()) { //Check that file opened
+		file << pin_num; //Write pin number to file
+		file.close(); //Close file
+	}
+	else {
+		std::cout << "ERR (GPIO.h:setupPin): Failed to export pin (could not open 'export' file), TRY running code as root and checking /sys/class/gpio/export exists\n";
+		return 1;
 	}
 
-    close(fd);
+	char pin_path[30]; //Path for pin
+	sprintf(pin_path, "/sys/class/gpio/gpio%s", pin_num);
+	int status = access(pin_path, F_OK); //Access directory on system to check exists
+	switch (create) {
+		case 1:
+			if (status < 0) { //Check for errors
+				std::cout << "ERR (GPIO.h:setupPin): Failed to export GPIO pin (could not write to 'export' file), TRY running code as root and checking that /sys/class/gpio/export exists\n";
+				return 1;
+			}
+			break;
+		case 0:
+			if (status >= 0) { //Check for errors (ensure that file does not exist)
+				std::cout << "ERR (GPIO.h:setupPin): Failed to unexport GPIO pin (could not write to 'unexport' file), TRY running code as root and checking that /sys/class/gpio/export exists\n";				return 1;
+			}
+			break;
+		default:
+			std::cout << "ERR (GPIO.h:setupPin): Incorrect value for create variable (must be either 0 or 1)\n";
+			break;
+	}
+
+	return 0;
 }
 
-bool digitalRead(int pin){
-	string pin_string = to_string(pin);
+int GPIO::setDirection(int direction) {
+//Run setup for input/output (variable direction)
+	char pin_path[35]; //Path for pin
+	sprintf(pin_path, "/sys/class/gpio/gpio%s/direction", pin_num); //Format path
+	std::ofstream file(pin_path); //Open file
+	if (file.is_open()) { //Check that file opened
+		if (direction == 1) { //Check to make sure correct formatting
+			file << "out"; //Write
+			_direction = 1; //Set _direction variable to prevent write on read pin
+		}
+		else if (direction == 0) {
+			file << 0;
+			_direction = 0; //Set _direction variable to prevent write on read pin
+		}
+		else {
+			std::cout << "ERR (GPIO.h:setDirection): Incorrect value for direction variable (must be either 1 for output or 0 of input)\n";
+			return 1;
+		}
+		file.close(); //Close
+	}
+	else {
+		std::cout << "ERR (GPIO.h:setDirection): Failed to set direction of pin (could not open 'direction' file), TRY running code as root and checking that /sys/class/gpio/gpioN/direction exists\n";
+		return 1;
+	}
 
-	int fd = open("/sys/class/gpio/gpio" + pin_string + "/value", O_RONLY);
-	string val = read(fd, 1);
-	return val=="1"? true: false;
-	close(fd)
-
+	return 0;
 }
 
-
-bool digitalWrite(int pin, bool value){
-
-	fd = open("/sys/class/gpio/gpio"+ to_string(pin) +"/value", O_WRONLY);
-    if (fd == -1) {
-        perror("Unable to open /sys/class/gpio/gpio"+ to_string(pin) +"/value");
-        exit(1);
-    }
-	char svalue = value? '1':'0';
-	if (write(fd, svalue, 1) != 1) {
-        perror("Error writing to /sys/class/gpio/gpio"+ to_string(pin) +"/value");
-        exit(1);
-    }
-	close(fd);
+int GPIO::writeValue(int level) {
+//Set level of pin
+	if (_direction == 1) { //Check that the direction of the pin is set as an output
+		char pin_path[35]; //Path for pin
+		sprintf(pin_path, "/sys/class/gpio/gpio%s/value", pin_num); //Format path
+		std::ofstream file(pin_path); //Open file
+		if (file.is_open()) { //Check that file opened
+			if (level == 1) { //Check to make sure correct formatting
+				file << "1"; //Write
+			}
+			else if (level == 0) {
+				file << "0";
+			}
+			else {
+				std::cout << "ERR (GPIO.h:writeValue): Incorrect value for direction variable (must be either 'out' or 'in')\n";
+				return 1;
+			}
+			file.close(); //Close
+		}
+		else {
+			std::cout << "ERR (GPIO.h:writeValue): Failed to set value of pin (could not open 'value' file), TRY running code as root and checking that /sys/class/gpio/gpioN/value exists\n";
+			return 1;
+		}
+	}
+	else {
+		std::cout << "ERR (GPIO.h:writeValue): Cannot write pin when direction is set as input (direction must be 1 to write level)\n";
+	}
+	return 0;
 }
+
+int GPIO::readValue(std::string *level) {
+	if (_direction == 0) { //Check that the direction of the pin is set as an input
+		char pin_path[35]; //Path for pin
+		sprintf(pin_path, "/sys/class/gpio/gpio%s/value", pin_num); //Format path
+		std::ifstream ifile(pin_path); //Open file
+		if (ifile.is_open()) { //Check that file opened
+			std::getline(ifile, *level);
+		}
+		else {
+			std::cout << "ERR (GPIO.h:readValue): Failed to read pin value (could not open 'value' file), TRY running code as root and checking that /sys/class/gpio/gpioN/value exists\n";
+			return 1;
+		}
+	}
+	else {
+		std::cout << "ERR (GPIO.h:readValue): Cannot read pin when direction is set as output (direction must be 0 to read level)\n";
+	}
+	return 0;
+}
+
+GPIO pin_buzzer(BUZZER), pin_door(DOOR_EN), pin_pir(PIR_SENSOR);
 void beepBuzzer(){
 	cout<< "Beeping buzzer"<<endl;
-	digitalWrite(BUZZER, HIGH);
-	delay(5000);
-	digitalWrite(BUZZER, LOW);
+	pin_buzzer.writeValue(1); 
+	delay(1000);
+	pin_buzzer.writeValue(0); 
 }
 void gpioSetup(){
-	pinMode(BUZZER, OUTPUT);
-	pinMode(DOOR_EN, OUTPUT);
-	pinMode(PIR_SENSOR, INPUT);
-	pinMode(GREEN_LED, INPUT);
-	pinMode(RED_LED, INPUT);
+	
+	pin_buzzer.setupPin(1);
+	pin_door.setupPin(1);
+	pin_pir.setupPin(1);
 
-	digitalWrite(DOOR_EN, LOW);
-	digitalWrite(BUZZER, LOW);
+	pin_buzzer.setDirection(1);
+	pin_door.setDirection(1);
+	pin_pir.setDirection(0);
+
+	pin_buzzer.writeValue(0);
+
+	//pinMode(DOOR_EN, OUTPUT);
+	//pinMode(PIR_SENSOR, INPUT);
+	//pinMode(GREEN_LED, INPUT);
+	//pinMode(RED_LED, INPUT);
+
+	//digitalWrite(DOOR_EN, LOW);
+	//digitalWrite(BUZZER, LOW);
 }
 
 void openDoor(){
-	digitalWrite(DOOR_EN, HIGH);
+	pin_door.writeValue(1);
 	delay(500);
-	digitalWrite(DOOR_EN, LOW);
+	pin_door.writeValue(0);
 }
 void *pirWatcher(void * thread_id){
-	if(digitalRead(PIR_SENSOR) == 1) pir_flag = true;
-	delay(200);
+	cout<< "reading pir"<< endl;
+	string flag;
+	while(true){
+		int status = pin_pir.readValue(&flag);
+		if(flag == "1") {
+			cout << "PIR movement detected" << endl;
+			pir_flag = true;
+		}
+		delay(400);
+	}
+	
 }
 

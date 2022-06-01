@@ -21,11 +21,15 @@ int main() {
     pthread_t threads[3];
     int id_thread_pir;
     id_thread_pir  = pthread_create(&threads[0], NULL, pirWatcher, (void *)0);
-
     while(true){
+        cout << pir_flag << " pir flag" << endl;
         if(pir_flag){
+            cout << "Detecting QR" << endl;
             bool detected = qrDetector(TIMEOUT);
-            if(detected) cout<<"DETECTED"<<endl;
+            if(detected) {
+                cout<<"QR detected"<<endl;
+                beepBuzzer();
+            }
             pir_flag = false;
 
         }
