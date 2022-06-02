@@ -28,7 +28,8 @@ void beepBuzzer();
 void openDoor();
 void gpioSetup();
 void *pirWatcher(void *);
+void *usWatcher(void *);
 
-extern bool pir_flag;
+extern bool pir_flag, us_flag;
 
 

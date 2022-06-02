@@ -15,6 +15,8 @@
 #define YELLOW_LED "27"
 #define RED_LED "22"
 #define DOOR_EN "25"
+#define US_TRIGGER "2"
+#define US_ECHO "3"
 
 #define INPUT 0
 #define OUTPUT 1
@@ -23,7 +25,7 @@
 #define HIGH 1
 
 using namespace std;
-bool pir_flag;
+bool pir_flag, us_flag;
 void delay(int milliseconds){
 	usleep(milliseconds*1000);
 }
@@ -178,7 +180,7 @@ int GPIO::readValue(std::string *level) {
 	return 0;
 }
 
-GPIO pin_buzzer(BUZZER), pin_door(DOOR_EN), pin_pir(PIR_SENSOR);
+GPIO pin_buzzer(BUZZER), pin_door(DOOR_EN), pin_pir(PIR_SENSOR), pin_trigger(US_TRIGGER), pin_echo(US_ECHO);
 void beepBuzzer(){
 	cout<< "Beeping buzzer"<<endl;
 	pin_buzzer.writeValue(1); 
@@ -190,12 +192,17 @@ void gpioSetup(){
 	pin_buzzer.setupPin(1);
 	pin_door.setupPin(1);
 	pin_pir.setupPin(1);
+	pin_trigger.setupPin(1);
+	pin_echo.setupPin(1);
 
 	pin_buzzer.setDirection(1);
 	pin_door.setDirection(1);
+	pin_trigger.setDirection(1);
+	pin_echo.setDirection(0);
 	pin_pir.setDirection(0);
 
 	pin_buzzer.writeValue(0);
+	pin_trigger.writeValue(0);
 
 	//pinMode(DOOR_EN, OUTPUT);
 	//pinMode(PIR_SENSOR, INPUT);
@@ -223,5 +230,32 @@ void *pirWatcher(void * thread_id){
 		delay(400);
 	}
 	
+}
+
+
+void* usWatcher(void* thread_id){
+	cout<<"Ultrasound enabled";
+	for(;;){
+		float d=10000.0;
+		string flag;
+		pin_trigger.writeValue(1);
+		usleep(10);
+		pin_trigger.writeValue(0);
+		const clock_t begin_time = clock();
+
+		while((float( clock () - begin_time ) /  CLOCKS_PER_SEC)<0.040){
+			int status = pin_echo.readValue(&flag);
+			if(flag=="1"){
+				d = (float( clock () - begin_time ) /  CLOCKS_PER_SEC)*343.0;
+				cout << "US presence detected" << endl;	
+			}
+		}
+		if(d<=1.2){
+			cout << "US presence less than 1.2 m" << endl;
+			us_flag = true;
+		}
+	
+	}
+
 }
 
