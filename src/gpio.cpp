@@ -11,8 +11,8 @@
 
 #define BUZZER "24"
 #define PIR_SENSOR "20"
-#define GREEN_LED "17"
-#define YELLOW_LED "27"
+#define BLUE_LED "17"
+#define WHITE_LED "27"
 #define RED_LED "22"
 #define DOOR_EN "25"
 #define US_TRIGGER "2"
@@ -181,6 +181,8 @@ int GPIO::readValue(std::string *level) {
 }
 
 GPIO pin_buzzer(BUZZER), pin_door(DOOR_EN), pin_pir(PIR_SENSOR), pin_trigger(US_TRIGGER), pin_echo(US_ECHO);
+GPIO pin_blue_led(BLUE_LED), pin_red_led(RED_LED), pin_white_led(WHITE_LED);
+
 void beepBuzzer(){
 	cout<< "Beeping buzzer"<<endl;
 	pin_buzzer.writeValue(1); 
@@ -194,15 +196,26 @@ void gpioSetup(){
 	pin_pir.setupPin(1);
 	pin_trigger.setupPin(1);
 	pin_echo.setupPin(1);
+	pin_blue_led.setupPin(1);
+	pin_red_led.setupPin(1);
+	pin_white_led.setupPin(1);
 
 	pin_buzzer.setDirection(1);
 	pin_door.setDirection(1);
 	pin_trigger.setDirection(1);
+	pin_blue_led.setDirection(1);
+	pin_red_led.setDirection(1);
+	pin_white_led.setDirection(1);
+
 	pin_echo.setDirection(0);
 	pin_pir.setDirection(0);
 
 	pin_buzzer.writeValue(0);
 	pin_trigger.writeValue(0);
+
+	pin_blue_led.writeValue(0);
+	pin_red_led.writeValue(1);
+	pin_white_led.writeValue(1);
 
 	//pinMode(DOOR_EN, OUTPUT);
 	//pinMode(PIR_SENSOR, INPUT);
@@ -215,8 +228,16 @@ void gpioSetup(){
 
 void openDoor(){
 	pin_door.writeValue(1);
+	pin_white_led.writeValue(0);
 	delay(500);
 	pin_door.writeValue(0);
+	pin_white_led.writeValue(1);
+}
+
+void deniedLight(){
+	pin_red_led.writeValue(0);
+	delay(1000);
+	pin_red_led.writeValue(1);
 }
 void *pirWatcher(void * thread_id){
 	cout<< "reading pir"<< endl;

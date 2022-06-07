@@ -30,7 +30,7 @@ int main() {
             bool detected = qrDetector(TIMEOUT);
             if(detected) {
                 cout<<"QR detected"<<endl;
-                beepBuzzer();
+                openDoor();
             }
             pir_flag = false;
             us_flag = false;
