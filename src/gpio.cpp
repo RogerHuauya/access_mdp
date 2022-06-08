@@ -11,12 +11,12 @@
 
 #define BUZZER "24"
 #define PIR_SENSOR "20"
-#define BLUE_LED "17"
-#define WHITE_LED "27"
-#define RED_LED "22"
+#define BLUE_LED "27"
+#define WHITE_LED "22"
+#define RED_LED "17"
 #define DOOR_EN "25"
-#define US_TRIGGER "2"
-#define US_ECHO "3"
+#define US_TRIGGER "12"
+#define US_ECHO "16"
 
 #define INPUT 0
 #define OUTPUT 1
@@ -229,9 +229,11 @@ void gpioSetup(){
 void openDoor(){
 	pin_door.writeValue(1);
 	pin_white_led.writeValue(0);
+	pin_buzzer.writeValue(1);
 	delay(500);
 	pin_door.writeValue(0);
 	pin_white_led.writeValue(1);
+	pin_buzzer.writeValue(0);
 }
 
 void deniedLight(){
@@ -240,21 +242,25 @@ void deniedLight(){
 	pin_red_led.writeValue(1);
 }
 void *pirWatcher(void * thread_id){
-	cout<< "reading pir"<< endl;
+	//cout<< "reading pir"<< endl;
 	string flag;
 	while(true){
 		int status = pin_pir.readValue(&flag);
 		if(flag == "1") {
-			cout << "PIR movement detected" << endl;
+			//cout << "PIR movement detected" << endl;
 			pir_flag = true;
+			pin_red_led.writeValue(0);
 		}
-		delay(400);
+		else{
+			pin_red_led.writeValue(1);
+		}
+		delay(100);
 	}
 	
 }
 
 
-void* usWatcher(void* thread_id){
+void *usWatcher(void * thread_id){
 	cout<<"Ultrasound enabled";
 	for(;;){
 		float d=10000.0;
@@ -264,15 +270,15 @@ void* usWatcher(void* thread_id){
 		pin_trigger.writeValue(0);
 		const clock_t begin_time = clock();
 
-		while((float( clock () - begin_time ) /  CLOCKS_PER_SEC)<0.040){
+		while((float( clock () - begin_time ) /  CLOCKS_PER_SEC)<0.200){
 			int status = pin_echo.readValue(&flag);
 			if(flag=="1"){
-				d = (float( clock () - begin_time ) /  CLOCKS_PER_SEC)*343.0;
-				cout << "US presence detected" << endl;	
+				d = (float( clock () - begin_time ) /  CLOCKS_PER_SEC)*34.30;
+				cout << "US presence detected  " <<d<< endl;	
 			}
 		}
 		if(d<=1.2){
-			cout << "US presence less than 1.2 m" << endl;
+			cout << "US presence less than 1.2 m  " <<d<< endl;
 			us_flag = true;
 		}
 	
