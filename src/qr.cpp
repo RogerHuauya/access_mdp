@@ -2,6 +2,9 @@
 
 #include <opencv2/opencv.hpp>
 #include <zbar.h>
+#include <iostream>
+#include <vector>
+#include <sstream>
 #define QR_TYPE "QR-Code"
 
 using namespace cv;
@@ -38,7 +41,16 @@ vector<decodedObject> decode(Mat &im){
 }
 
 bool qrDetector(float active_time){
-  
+vector<string> row;
+string line, word;
+    ifstream file("/home/pi/access_mdp/python/auth_users.csv")			
+	bool header = true;
+    while(getline(file, line)){
+		row.clear()	
+		stringstream str(line)
+		while(getline(str, word, ','))
+    
+    }
     VideoCapture cap(0);
     Mat frame; 
     
