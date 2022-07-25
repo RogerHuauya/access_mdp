@@ -41,15 +41,24 @@ vector<decodedObject> decode(Mat &im){
 }
 
 bool qrDetector(float active_time){
-vector<string> row;
-string line, word;
+    vector<string> hash_arr, dni_arr, name_arr;
+    string line, word;
     ifstream file("/home/pi/access_mdp/python/auth_users.csv")			
 	bool header = true;
+    getline(file, line);
     while(getline(file, line)){
 		row.clear()	
 		stringstream str(line)
-		while(getline(str, word, ','))
-    
+		getline(str, word, ',');
+		getline(str, word, ',');
+        hash_arr.push_back(word);
+		getline(str, word, ',');
+        dni_arr.push_back(word);
+		getline(str, word, ',');
+        name_arr.push_back(word);
+    }
+    for(int i = 0; i < hash_arr.size(); i++){
+        cout << hash_arr[i] << " " << dni_arr[i] << " " << name_arr[i] << endl; 
     }
     VideoCapture cap(0);
     Mat frame; 
