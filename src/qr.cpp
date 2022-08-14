@@ -20,6 +20,7 @@ typedef struct{
   string data;
 } decodedObject;
 
+vector<string> hash_arr, dni_arr, name_arr;
 
 vector<decodedObject> decode(Mat &im){
     ImageScanner scanner;
@@ -44,7 +45,6 @@ vector<decodedObject> decode(Mat &im){
     return output;
 }
 
-vector<string> hash_arr, dni_arr, name_arr;
 
 void readAuthFile(){
     string line, word;

@@ -20,6 +20,7 @@ int main() {
     gpioSetup();
     pthread_t threads[3];
     int id_thread_pir, id_thread_us;
+    readAuthFile();
     id_thread_pir  = pthread_create(&threads[0], NULL, pirWatcher, (void *)0);
     //id_thread_us = pthread_create(&threads[1], NULL, usWatcher, (void *)0);
     while(true){
