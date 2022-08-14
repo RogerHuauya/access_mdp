@@ -6,6 +6,9 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
 #define QR_TYPE "QR-Code"
 
 using namespace cv;
@@ -41,9 +44,13 @@ vector<decodedObject> decode(Mat &im){
     return output;
 }
 
-bool qrDetector(float active_time){
-    vector<string> hash_arr, dni_arr, name_arr;
+vector<string> hash_arr, dni_arr, name_arr;
+
+void readAuthFile(){
     string line, word;
+    hash_arr.clear();
+    dni_arr.clear();
+    name_arr.clear();
     ifstream file("/home/pi/access_mdp/python/auth_users.csv");
 	bool header = true;
     getline(file, line);
@@ -60,6 +67,27 @@ bool qrDetector(float active_time){
     for(int i = 0; i < hash_arr.size(); i++){
         cout << hash_arr[i] << " " << dni_arr[i] << " " << name_arr[i] << endl; 
     }
+}
+
+string currentDate(){
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    string str = oss.str();
+    return str
+}
+
+void saveMark(string dni){
+    string now = currentDate();
+    ofstream out("/home/pi/access_mdp/python/" + now +".csv");
+    out << ",hash,dni" << endl;
+    out << "0,"<<hash_arr[j]<<","<< hash_arr[j] << endl;
+    out.close();
+}
+bool qrDetector(float active_time){
+
     VideoCapture cap(0);
     Mat frame; 
     
@@ -75,13 +103,10 @@ bool qrDetector(float active_time){
         for(int i = 0; i < decodedObjects.size(); i++){
             if(decodedObjects[i].type ==QR_TYPE){
 		for(int j = 0; j < hash_arr.size(); j++){
-			cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
+			//cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
 			if(decodedObjects[i].data == hash_arr[j]){
 			    cout<< "QR Code and auth User matched"<<endl;
-			    ofstream out("/home/pi/access_mdp/python/user_register.csv");
-			    out << ",hash,dni" << endl;
-			    out << "0,"<<hash_arr[j]<<","<< hash_arr[j] << endl;
-			    out.close();
+                saveMark(hash_arr[j]);
 			    return true;
 			}
 		}
@@ -91,3 +116,5 @@ bool qrDetector(float active_time){
     }
     return false;
 }
+
+
