@@ -76,14 +76,14 @@ string currentDate(){
     std::ostringstream oss;
     oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
     string str = oss.str();
-    return str
+    return str;
 }
 
 void saveMark(string dni){
     string now = currentDate();
     ofstream out("/home/pi/access_mdp/python/" + now +".csv");
     out << ",hash,dni" << endl;
-    out << "0,"<<hash_arr[j]<<","<< hash_arr[j] << endl;
+    out << "0,"<< dni <<","<< dni << endl;
     out.close();
 }
 bool qrDetector(float active_time){
