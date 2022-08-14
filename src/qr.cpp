@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <string>
 #define QR_TYPE "QR-Code"
 
 using namespace cv;
@@ -43,12 +44,11 @@ vector<decodedObject> decode(Mat &im){
 bool qrDetector(float active_time){
     vector<string> hash_arr, dni_arr, name_arr;
     string line, word;
-    ifstream file("/home/pi/access_mdp/python/auth_users.csv")			
+    ifstream file("/home/pi/access_mdp/python/auth_users.csv");
 	bool header = true;
     getline(file, line);
     while(getline(file, line)){
-		row.clear()	
-		stringstream str(line)
+		stringstream str(line);
 		getline(str, word, ',');
 		getline(str, word, ',');
         hash_arr.push_back(word);
@@ -74,9 +74,17 @@ bool qrDetector(float active_time){
         decodedObjects = decode(frame);
         for(int i = 0; i < decodedObjects.size(); i++){
             if(decodedObjects[i].type ==QR_TYPE){
-                if(decodedObjects[i].data =="http://LearnOpenCV.com"){
-                    return true;
-                }
+		for(int j = 0; j < hash_arr.size(); j++){
+			cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
+			if(decodedObjects[i].data == hash_arr[j]){
+			    cout<< "QR Code and auth User matched"<<endl;
+			    ofstream out("/home/pi/access_mdp/python/user_register.csv");
+			    out << ",hash,dni" << endl;
+			    out << "0,"<<hash_arr[j]<<","<< hash_arr[j] << endl;
+			    out.close();
+			    return true;
+			}
+		}
             }
         }
 
