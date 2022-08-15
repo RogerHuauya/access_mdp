@@ -74,14 +74,14 @@ string currentDate(){
     auto tm = *std::localtime(&t);
 
     std::ostringstream oss;
-    oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
     string str = oss.str();
     return str;
 }
 
 void saveMark(string dni){
     string now = currentDate();
-    ofstream out("/home/pi/access_mdp/python/" + now +".csv");
+    ofstream out("/home/pi/access_mdp/python/marks/" + now +".csv");
     out << ",hash,dni" << endl;
     out << "0,"<< dni <<","<< dni << endl;
     out.close();

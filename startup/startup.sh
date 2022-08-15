@@ -29,11 +29,14 @@ setState 26 "1"
 sleep 5
 
 sudo udhcpc -i wwan0
+#
+#while true
+#do
+#	setState 26 "1"
+#	sleep 0.5
+#	setState 26 "0"
+#	sleep 0.5
+#done
 
-while true
-do
-	setState 26 "1"
-	sleep 0.5
-	setState 26 "0"
-	sleep 0.5
-done
+source /root/.bashrc
+./home/pi/access_mdp/build/main
