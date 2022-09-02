@@ -11,4 +11,4 @@ To build the C++ code, run:
 make
 ```
 
-The data of the allowed users are is fetched using a python scripts called communication.py and this code also POST the timestamps a user is entering the office.
+The data of the allowed users is fetched using a python script called communication.py. Moreover, this code also POST the timestamps a user is entering the office.
