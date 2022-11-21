@@ -216,14 +216,6 @@ void gpioSetup(){
 	pin_blue_led.writeValue(0);
 	pin_red_led.writeValue(1);
 	pin_white_led.writeValue(1);
-
-	//pinMode(DOOR_EN, OUTPUT);
-	//pinMode(PIR_SENSOR, INPUT);
-	//pinMode(GREEN_LED, INPUT);
-	//pinMode(RED_LED, INPUT);
-
-	//digitalWrite(DOOR_EN, LOW);
-	//digitalWrite(BUZZER, LOW);
 }
 
 void openDoor(){
@@ -256,32 +248,5 @@ void *pirWatcher(void * thread_id){
 		delay(100);
 	}
 	
-}
-
-
-void *usWatcher(void * thread_id){
-	cout<<"Ultrasound enabled";
-	for(;;){
-		float d=10000.0;
-		string flag;
-		pin_trigger.writeValue(1);
-		usleep(10);
-		pin_trigger.writeValue(0);
-		const clock_t begin_time = clock();
-
-		while((float( clock () - begin_time ) /  CLOCKS_PER_SEC)<0.200){
-			int status = pin_echo.readValue(&flag);
-			if(flag=="1"){
-				d = (float( clock () - begin_time ) /  CLOCKS_PER_SEC)*34.30;
-				cout << "US presence detected  " <<d<< endl;	
-			}
-		}
-		if(d<=1.2){
-			cout << "US presence less than 1.2 m  " <<d<< endl;
-			us_flag = true;
-		}
-	
-	}
-
 }
 

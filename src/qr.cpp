@@ -87,12 +87,12 @@ void saveMark(string hash, string dni){
     out.close();
 }
 bool qrDetector(float active_time){
-    readAuthFile();
     VideoCapture cap(0);
     Mat frame; 
     
     if (!cap.isOpened()) {
         cout << "cannot open camera";
+        return false;
     }
 
     clock_t begin_time = clock();
@@ -102,18 +102,20 @@ bool qrDetector(float active_time){
         decodedObjects = decode(frame);
         for(int i = 0; i < decodedObjects.size(); i++){
             if(decodedObjects[i].type ==QR_TYPE){
-		for(int j = 0; j < hash_arr.size(); j++){
-			//cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
-			if(decodedObjects[i].data == hash_arr[j]){
-			    cout<< "QR Code and auth User matched"<<endl;
-                saveMark(hash_arr[j], dni_arr[j]);
-			    return true;
-			}
-		}
+                readAuthFile();
+                for(int j = 0; j < hash_arr.size(); j++){
+                    //cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
+                    if(decodedObjects[i].data == hash_arr[j]){
+                        cout<< "QR Code and auth User matched"<<endl;
+                        saveMark(hash_arr[j], dni_arr[j]);
+                        return true;
+                    }
+                }
             }
         }
 
     }
+    cap.release();
     return false;
 }
 
