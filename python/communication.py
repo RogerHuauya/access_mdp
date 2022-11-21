@@ -10,11 +10,19 @@ URL_ATTENDANCE_USERS = 'https://srf-webapp-prd.azurewebsites.net/api/asistencia'
 
 user_register_file = 'user_register.csv'
 
+<<<<<<< HEAD
 response = requests.get(URL_AUTH_USERS)
 auth_users = response.json()
 df_auth = pd.json_normalize(auth_users)
 df_auth.to_csv('/home/pi/access_mdp/python/auth_users.csv')
 print(df_auth)
+=======
+#response = requests.get(URL_AUTH_USERS)
+#auth_users = response.json()
+#df_auth = pd.json_normalize(auth_users)
+#df_auth.to_csv('/home/pi/access_mdp/python/auth_users.csv')
+#print(df_auth)
+>>>>>>> 4e4f9b78011f69bcdf40012061d4f64410ab87fd
 ROOT_PATH = '/home/pi/access_mdp'
 dirs = listdir(f'{ROOT_PATH}/python/marks')
 print(dirs)
