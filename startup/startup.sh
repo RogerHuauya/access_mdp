@@ -1,9 +1,4 @@
 #!/bin/bash
-<<<<<<< HEAD
-source /root/.bashrc
-/home/pi/access_mdp/build/main
-=======
-
 source /home/pi/access_mdp/startup/gpio.sh
 
 # Export pins so that we can use them
@@ -44,4 +39,3 @@ sudo udhcpc -i wwan0
 
 source /root/.bashrc
 ./home/pi/access_mdp/build/main
->>>>>>> 4e4f9b78011f69bcdf40012061d4f64410ab87fd
