@@ -74,20 +74,20 @@ string currentDate(){
     auto tm = *std::localtime(&t);
 
     std::ostringstream oss;
-    oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
     string str = oss.str();
     return str;
 }
 
-void saveMark(string dni){
+void saveMark(string hash, string dni){
     string now = currentDate();
-    ofstream out("/home/pi/access_mdp/python/" + now +".csv");
+    ofstream out("/home/pi/access_mdp/python/marks/" + now +".csv");
     out << ",hash,dni" << endl;
-    out << "0,"<< dni <<","<< dni << endl;
+    out << "0,"<< hash <<","<< dni << endl;
     out.close();
 }
 bool qrDetector(float active_time){
-
+    readAuthFile();
     VideoCapture cap(0);
     Mat frame; 
     
@@ -106,7 +106,7 @@ bool qrDetector(float active_time){
 			//cout<<"Decoded QR: "<<decodedObjects[i].data<<" compared:"<< hash_arr[j]<<endl;
 			if(decodedObjects[i].data == hash_arr[j]){
 			    cout<< "QR Code and auth User matched"<<endl;
-                saveMark(hash_arr[j]);
+                saveMark(hash_arr[j], dni_arr[j]);
 			    return true;
 			}
 		}

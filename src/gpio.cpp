@@ -9,12 +9,12 @@
 
 #include "gpio.hpp"
 
-#define BUZZER "24"
-#define PIR_SENSOR "20"
+#define BUZZER "13"
+#define PIR_SENSOR "26"
 #define BLUE_LED "27"
 #define WHITE_LED "22"
 #define RED_LED "17"
-#define DOOR_EN "25"
+#define DOOR_EN "5"
 #define US_TRIGGER "12"
 #define US_ECHO "16"
 
@@ -247,7 +247,6 @@ void *pirWatcher(void * thread_id){
 	while(true){
 		int status = pin_pir.readValue(&flag);
 		if(flag == "1") {
-			//cout << "PIR movement detected" << endl;
 			pir_flag = true;
 			pin_red_led.writeValue(0);
 		}

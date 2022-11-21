@@ -26,7 +26,7 @@ int main() {
     while(true){
         //cout << pir_flag << " pir flag" << endl;
         //cout << us_flag << " us flag" << endl;
-        if(pir_flag || us_flag ){
+        if(pir_flag || us_flag){
             //cout << "Detecting QR" << endl;
             bool detected = qrDetector(TIMEOUT);
             if(detected) {
